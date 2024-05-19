@@ -127,7 +127,7 @@ static cell_t Port64_LoadFromAddress(IPluginContext* pContext, const cell_t* par
 
     pContext->LocalToPhysAddr(params[4], reinterpret_cast<cell_t**>(&output));    
     pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&addr));
-    addr = (uintptr_t*)((uint8_t*)addr + params[2]);
+    addr = (uintptr_t*)(*addr + params[2]);
 
     switch(params[3])
     {
@@ -159,7 +159,7 @@ static cell_t Port64_StoreToAddress(IPluginContext* pContext, const cell_t* para
 
     pContext->LocalToPhysAddr(params[4], reinterpret_cast<cell_t**>(&input));    
     pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&addr));
-    addr = (uintptr_t*)((uint8_t*)addr + params[2]);
+    addr = (uintptr_t*)(*addr + params[2]);
 
     switch(params[3])
     {
