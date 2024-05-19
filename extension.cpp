@@ -60,7 +60,11 @@ static cell_t Port64_FromPseudoAddress(IPluginContext* pContext, const cell_t* p
 {
     uintptr_t* buffer;
     pContext->LocalToPhysAddr(params[2], reinterpret_cast<cell_t**>(&buffer));
+#if defined(__i386__)
+    *buffer = params[1];
+#else
     *buffer = (uintptr_t)smutils->FromPseudoAddress(params[1]);
+#endif
     return 0;
 }
 
@@ -68,7 +72,11 @@ static cell_t Port64_ToPseudoAddress(IPluginContext* pContext, const cell_t* par
 {
     uintptr_t* buffer;
     pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&buffer));
+#if defined(__i386__)
+    return *buffer;
+#else
     return (cell_t)smutils->ToPseudoAddress((void*)*buffer);
+#endif
 }
 
 static cell_t Port64_Add(IPluginContext* pContext, const cell_t* params)
