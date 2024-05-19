@@ -1,0 +1,12 @@
+# build folder
+build/*
+
+# hl2sdk-manifest link
+hl2sdk-manifests
+
+# cdetour
+CDetour
+
+# include build commands
+!build/build
+!build/clean
