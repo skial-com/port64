@@ -36,15 +36,176 @@
  * @brief Implement extension code here.
  */
 
+enum NumberType
+{
+    NumberType_Int8,
+    NumberType_Int16,
+    NumberType_Int32,
+    NumberType_Int64,
+};
+
 Sample g_Sample;		/**< Global singleton for extension's main interface */
 
 SMEXT_LINK(&g_Sample);
 
-bool Sample::SDK_OnLoad(char *error, size_t maxlength, bool late)
+extern sp_nativeinfo_t g_natives[];
+
+void Sample::SDK_OnAllLoaded()
 {
-    return true;
+    sharesys->RegisterLibrary(myself, "port64");
+    sharesys->AddNatives(myself, g_natives);
 }
 
-void Sample::SDK_OnUnload()
+static cell_t Port64_FromPseudoAddress(IPluginContext* pContext, const cell_t* params)
 {
+    uintptr_t* buffer;
+    pContext->LocalToPhysAddr(params[2], reinterpret_cast<cell_t**>(&buffer));
+    *buffer = (uintptr_t)smutils->FromPseudoAddress(params[1]);
+    return 0;
 }
+
+static cell_t Port64_ToPseudoAddress(IPluginContext* pContext, const cell_t* params)
+{
+    uintptr_t* buffer;
+    pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&buffer));
+    return (cell_t)smutils->ToPseudoAddress((void*)*buffer);
+}
+
+static cell_t Port64_Add(IPluginContext* pContext, const cell_t* params)
+{
+    uintptr_t *a,*b,*c;
+    pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&a));
+    pContext->LocalToPhysAddr(params[2], reinterpret_cast<cell_t**>(&b));
+    pContext->LocalToPhysAddr(params[3], reinterpret_cast<cell_t**>(&c));
+    *c = *a + *b;
+    return 0;
+}
+
+static cell_t Port64_Sub(IPluginContext* pContext, const cell_t* params)
+{
+    uintptr_t *a,*b,*c;
+    pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&a));
+    pContext->LocalToPhysAddr(params[2], reinterpret_cast<cell_t**>(&b));
+    pContext->LocalToPhysAddr(params[3], reinterpret_cast<cell_t**>(&c));
+    *c = *a - *b;
+    return 0;
+}
+
+static cell_t Port64_Mul(IPluginContext* pContext, const cell_t* params)
+{
+    uintptr_t *a,*b,*c;
+    pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&a));
+    pContext->LocalToPhysAddr(params[2], reinterpret_cast<cell_t**>(&b));
+    pContext->LocalToPhysAddr(params[3], reinterpret_cast<cell_t**>(&c));
+    *c = *a * *b;
+    return 0;
+}
+
+static cell_t Port64_Div(IPluginContext* pContext, const cell_t* params)
+{
+    uintptr_t *a,*b,*c;
+    pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&a));
+    pContext->LocalToPhysAddr(params[2], reinterpret_cast<cell_t**>(&b));
+    pContext->LocalToPhysAddr(params[3], reinterpret_cast<cell_t**>(&c));
+    *c = *a / *b;
+    return 0;
+}
+
+// address, offset, type, output
+static cell_t Port64_LoadFromAddress(IPluginContext* pContext, const cell_t* params)
+{
+    uintptr_t* addr;
+    uintptr_t* output;
+
+    pContext->LocalToPhysAddr(params[4], reinterpret_cast<cell_t**>(&output));    
+    pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&addr));
+    addr += params[2];
+
+    switch(params[3])
+    {
+        case NumberType_Int8:
+            *output = *(int8_t*)addr;
+            break;
+        case NumberType_Int16:
+            *output = *(int16_t*)addr;
+            break;
+        case NumberType_Int32:
+            *output = *(int32_t*)addr;
+            break;
+        case NumberType_Int64:
+            *output = *(int64_t*)addr;
+            break;
+        default:
+            pContext->ReportError("invalid NumberType %i", params[3]);
+            return 1;
+    }
+
+    return 0;
+}
+
+// address, offset, type, input
+static cell_t Port64_StoreToAddress(IPluginContext* pContext, const cell_t* params)
+{
+    uintptr_t* addr;
+    uintptr_t* input;
+
+    pContext->LocalToPhysAddr(params[4], reinterpret_cast<cell_t**>(&input));    
+    pContext->LocalToPhysAddr(params[1], reinterpret_cast<cell_t**>(&addr));
+    addr += params[2];
+
+    switch(params[3])
+    {
+        case NumberType_Int8:
+            *(int8_t*)addr = *(int8_t*)input;
+            break;
+        case NumberType_Int16:
+            *(int16_t*)addr = *(int16_t*)input;
+            break;
+        case NumberType_Int32:
+            *(int32_t*)addr = *(int32_t*)input;
+            break;
+        case NumberType_Int64:
+            *(int64_t*)addr = *(int64_t*)input;
+            break;
+        default:
+            pContext->ReportError("invalid NumberType %i", params[3]);
+            return 1;
+    }
+
+    return 0;
+}
+
+static cell_t Port64_PointerBytes(IPluginContext* pContext, const cell_t* params)
+{
+    return sizeof(void*);
+}
+
+static cell_t Port64_GetEntityAddress(IPluginContext* pContext, const cell_t* params)
+{
+    uintptr_t* addr;
+    pContext->LocalToPhysAddr(params[2], reinterpret_cast<cell_t**>(&addr));
+
+    CBaseEntity* pEntity = gamehelpers->ReferenceToEntity(params[1]);
+    if(!pEntity)
+    {
+        *addr = 0;
+        return 0;
+    }
+
+    *addr = (uintptr_t)pEntity;
+    return 0;
+}
+
+sp_nativeinfo_t g_natives[] = {
+    { "Port64_PointerBytes",        Port64_PointerBytes},
+    { "Port64_FromPseudoAddress",   Port64_FromPseudoAddress },
+    { "Port64_ToPseudoAddress",     Port64_ToPseudoAddress },
+    { "Port64_Add",                 Port64_Add },
+    { "Port64_Sub",                 Port64_Sub },
+    { "Port64_Mul",                 Port64_Mul },
+    { "Port64_Div",                 Port64_Div },
+    { "Port64_LoadFromAddress",     Port64_LoadFromAddress },
+    { "Port64_StoreToAddress",      Port64_StoreToAddress },
+    { "Port64_GetEntityAddress",    Port64_GetEntityAddress },
+    { nullptr,                      nullptr }
+};
