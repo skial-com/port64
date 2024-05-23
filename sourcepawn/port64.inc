@@ -47,7 +47,7 @@ public Extension __ext_sm_port64 =
 #endif
 };
 
-#if !defined REQUIRE_PLUGIN
+#if !defined REQUIRE_EXTENSIONS
 public void __ext_sm_port64_SetNTVOptional()
 {
     MarkNativeAsOptional("Port64_PointerBytes");
