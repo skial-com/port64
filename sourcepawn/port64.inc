@@ -31,7 +31,7 @@ native void Port64_Sub(any a[2], any b[2], any output[2]);
 native void Port64_Mul(any a[2], any b[2], any output[2]);
 native void Port64_Div(any a[2], any b[2], any output[2]);
 
-public Extension __ext_sm_address64 = 
+public Extension __ext_sm_port64 = 
 {
 	name = "port64",
 	file = "port64.ext",
@@ -46,3 +46,19 @@ public Extension __ext_sm_address64 =
 	required = 0,
 #endif
 };
+
+#if !defined REQUIRE_PLUGIN
+public void __ext_sm_port64_SetNTVOptional()
+{
+    MarkNativeAsOptional("Port64_PointerBytes");
+    MarkNativeAsOptional("Port64_GetEntityAddress");
+    MarkNativeAsOptional("Port64_FromPseudoAddress");
+    MarkNativeAsOptional("Port64_ToPseudoAddress");
+    MarkNativeAsOptional("Port64_LoadFromAddress");
+    MarkNativeAsOptional("Port64_StoreToAddress");
+    MarkNativeAsOptional("Port64_Add");
+    MarkNativeAsOptional("Port64_Sub");
+    MarkNativeAsOptional("Port64_Mul");
+    MarkNativeAsOptional("Port64_Div");
+}
+#endif
