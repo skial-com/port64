@@ -11,7 +11,7 @@ sourceFiles = [
 project = builder.LibraryProject(projectName)
 project.sources += sourceFiles
 
-for compiler in self.all_targets:
-  Extension.ExtLibrary(project, builder, compiler, projectName + '.ext', sdk)
+for compiler in Extension.all_targets:
+  Extension.ExtLibrary(project, builder, compiler, projectName + '.ext')
 
 Extension.extensions += builder.Add(project)
