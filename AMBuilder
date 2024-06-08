@@ -2,28 +2,16 @@
 import os
 
 projectName = 'port64'
-extName = projectName + '.ext.'
 
-# smsdk_ext.cpp will be automatically added later
 sourceFiles = [
   'extension.cpp',
-   os.path.join(Extension.sm_root, 'public', 'smsdk_ext.cpp')
+  os.path.join(Extension.sm_root, 'public', 'smsdk_ext.cpp')
 ]
 
-project = builder.LibraryProject(extName)
-
+project = builder.LibraryProject(projectName)
 project.sources += sourceFiles
 
-for sdk_name in Extension.sdks:
-  sdk = Extension.sdks[sdk_name]
-  if sdk['name'] in ['mock']:
-    continue
-
-  for cxx in builder.targets:
-    if not cxx.target.arch in sdk['platforms'][cxx.target.platform]:
-      continue
-
-    #binary = Extension.HL2ExtConfig(project, builder, cxx, extName + sdk['extension'], sdk)
-    binary = Extension.HL2ExtConfig(project, builder, cxx, projectName + '.ext', sdk)
+for compiler in self.all_targets:
+  Extension.ExtLibrary(project, builder, compiler, projectName + '.ext', sdk)
 
 Extension.extensions += builder.Add(project)
