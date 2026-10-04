@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+python3 ../configure.py \
+    --sm-path ../../../sdk/sourcemod \
+    --targets x86_64
+ambuild
+
+# Stage binaries into ~/tf2dev/dist/extensions/{,x64}
+mkdir -p ../../../dist/extensions/x64
+shopt -s nullglob
+for f in package/addons/sourcemod/extensions/*.so; do
+    cp -u --remove-destination "$f" ../../../dist/extensions/
+done
+for f in package/addons/sourcemod/extensions/x64/*.so; do
+    cp -u --remove-destination "$f" ../../../dist/extensions/x64/
+done
