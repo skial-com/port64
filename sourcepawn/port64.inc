@@ -5,7 +5,7 @@
 
 const NumberType NumberType_Int64 = view_as<NumberType>(3);
 
-// we can't use enum structs in natives, "any var[2]" will be compatible with this though
+// address natives take Address64; the arithmetic natives take plain any[2] (e.g. int[2] epoch values)
 enum struct Address64
 {
 	int low;
@@ -15,15 +15,15 @@ enum struct Address64
 // returns how many bytes a pointer has
 native int Port64_PointerBytes();
 
-native void Port64_GetEntityAddress(int entity, any outputAddr[2]);
+native void Port64_GetEntityAddress(int entity, Address64 outputAddr);
 
 // conversions with pseudoaddress
-native void Port64_FromPseudoAddress(Address pseudo, any outputAddr[2]);
-native Address Port64_ToPseudoAddress(any addr[2]);
+native void Port64_FromPseudoAddress(Address pseudo, Address64 outputAddr);
+native Address Port64_ToPseudoAddress(Address64 addr);
 
 // load and store to address. offset is a 32 bit int for pointer arithmetic purposes
-native void Port64_LoadFromAddress(any addr[2], int offset, NumberType type, any outputValue[2]);
-native void Port64_StoreToAddress(any addr[2], int offset, NumberType type, any input[2]);
+native void Port64_LoadFromAddress(Address64 addr, int offset, NumberType type, Address64 outputValue);
+native void Port64_StoreToAddress(Address64 addr, int offset, NumberType type, Address64 input);
 
 // operations
 native void Port64_Add(any a[2], any b[2], any output[2]);
