@@ -40,12 +40,18 @@
 /* Basic information exposed publicly */
 #define SMEXT_CONF_NAME			"Port64"
 #define SMEXT_CONF_DESCRIPTION	"Utilities for porting sourcemod plugins to 64bit"
-#define SMEXT_CONF_VERSION		"1.0"
+#define SMEXT_CONF_BASE_VERSION	"1.0"
 #define SMEXT_CONF_AUTHOR		"Bottiger"
 #define SMEXT_CONF_URL			"http://www.skial.com"
 #define SMEXT_CONF_LOGTAG		"Port64"
 #define SMEXT_CONF_LICENSE		"GPL"
-#define SMEXT_CONF_DATESTRING	__DATE__
+
+/* Defined in git_version.cpp, which the build generates: the base version
+ * plus the git hash, and the build time */
+extern const char g_ExtVersion[];
+extern const char g_ExtBuildDate[];
+#define SMEXT_CONF_VERSION		g_ExtVersion
+#define SMEXT_CONF_DATESTRING	g_ExtBuildDate
 
 /** 
  * @brief Exposes plugin's main interface.

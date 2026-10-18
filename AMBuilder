@@ -1,5 +1,5 @@
 # vim: set sts=2 ts=8 sw=2 tw=99 et ft=python:
-import os
+import os, sys
 
 projectName = 'port64'
 
@@ -10,6 +10,18 @@ sourceFiles = [
 
 project = builder.LibraryProject(projectName)
 project.sources += sourceFiles
+
+# git_version.cpp holds the version and build date; its dependency file lists
+# HEAD and the repo's files, so it is regenerated after a commit or an edit
+project.sources += builder.AddCommand(
+  inputs = [os.path.join(builder.sourcePath, 'git_version.py')],
+  argv = [sys.executable, os.path.join(builder.sourcePath, 'git_version.py'),
+          builder.sourcePath, builder.buildPath, 'git_version.cpp', 'git_version.d'],
+  outputs = ['git_version.cpp'],
+  dep_type = 'md',
+  dep_file = 'git_version.d',
+  shared_outputs = ['git_version.d'],
+)
 
 for compiler in Extension.all_targets:
   Extension.ExtLibrary(project, builder, compiler, projectName + '.ext')
